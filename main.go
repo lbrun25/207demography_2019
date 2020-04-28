@@ -2,30 +2,27 @@ package main
 
 import (
     "fmt"
-    "neutrinos"
+    "demography"
     "os"
 )
 
 func printHelp() {
     fmt.Println("USAGE")
-    fmt.Println("\t./206neutrinos n a h sd")
+    fmt.Println("\t./207demography code [...]")
     fmt.Println("")
     fmt.Println("DESCRIPTION")
-    fmt.Println("\tn\t\tnumber of values")
-    fmt.Println("\ta\t\tarithmetic mean")
-    fmt.Println("\th\t\tharmonic mean")
-    fmt.Println("\tsd\t\tstandard deviation")
+    fmt.Println("\tcode\t\tcountry code")
 }
 
 func main() {
-    if neutrinos.CheckHelp() {
+    if demography.CheckHelp() {
         printHelp()
         os.Exit(0)
     }
-    if !neutrinos.CheckArgs() {
+    if !demography.CheckArgs() {
         printHelp()
         os.Exit(84)
     }
-    neutrinos.Neutrinos()
+    demography.Main()
     os.Exit(0)
 }
