@@ -14,6 +14,7 @@ const (
 	doesNotExist = "does not exist.\n"
 	fileName = "207demography_data.csv"
 	notEnoughValue = "There are not enough value in the file.\n"
+	countryCodeInvalidFormat = "Invalid format for the country code.\n"
 	countryCodeDoesNotExist = "The country code does not exist.\n"
 	minArg = 1
 )
@@ -47,10 +48,23 @@ func checkOpenFile(fileName string) (bool, *os.File) {
 	return true, file
 }
 
-func retrieveValues(countryCode string, file *os.File) bool {
+func retrieveFileContent(file *os.File) (bool, *[]string) {
 	scan := bufio.NewScanner(file)
+	var lines []string
+
 	for scan.Scan() {
-		values := strings.SplitN(scan.Text(), ";", -1)
+		lines = append(lines, scan.Text())
+	}
+	if err := scan.Err(); err != nil {
+		log.Fatal(err)
+		return false, nil
+	}
+	return true, &lines
+}
+
+func retrieveValues(countryCode string, lines []string) bool {
+	for _, line := range lines {
+		values := strings.SplitN(line, ";", -1)
 		if values[1] == countryCode {
 			var intSlice []int
 			for i := 2; i < len(values); i++ {
@@ -70,11 +84,7 @@ func retrieveValues(countryCode string, file *os.File) bool {
 			return true
 		}
 	}
-
-	if err := scan.Err(); err != nil {
-		log.Fatal(err)
-		return false
-	}
+	printErrorWithValue(countryCode, countryCodeDoesNotExist)
 	return false
 }
 
@@ -83,7 +93,7 @@ func CheckArgs() bool {
 	argsWithoutProg := os.Args[1:]
 
 	if len(argsWithoutProg) < minArg {
-		fmt.Printf("%s\n", notEnoughArgs)
+		printError(notEnoughArgs)
 		return false
 	}
 
@@ -91,12 +101,16 @@ func CheckArgs() bool {
 	if !status {
 		return false
 	}
+	status, lines := retrieveFileContent(file)
+	if !status {
+		return false
+	}
 	for _, arg := range argsWithoutProg {
 		if !utils.IsCountryCode(arg) {
-			fmt.Printf("%s\n", countryCodeDoesNotExist)
+			printErrorWithValue(arg, countryCodeInvalidFormat)
 			return false
 		}
-		if !retrieveValues(arg, file) {
+		if !retrieveValues(arg, *lines) {
 			return false
 		}
 	}
