@@ -88,6 +88,13 @@ func retrieveValues(countryCode string, lines []string) bool {
 	return false
 }
 
+func retrieveYears(line string) {
+	values := strings.SplitN(line, ";", -1)
+	for _, value := range values[2:] {
+		Years = append(Years, utils.ConvertStringToInt(value))
+	}
+}
+
 // CheckArgs check user input's args
 func CheckArgs() bool {
 	argsWithoutProg := os.Args[1:]
@@ -105,6 +112,7 @@ func CheckArgs() bool {
 	if !status {
 		return false
 	}
+	retrieveYears((*lines)[0])
 	for _, arg := range argsWithoutProg {
 		if !utils.IsCountryCode(arg) {
 			printErrorWithValue(arg, countryCodeInvalidFormat)

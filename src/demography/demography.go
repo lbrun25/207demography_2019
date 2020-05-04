@@ -8,6 +8,9 @@ import (
 const (
 )
 
+// Years = slice of year
+var Years []int
+
 // Demographies - slice of Demography
 var Demographies []Demography
 
@@ -44,5 +47,8 @@ func displayResults() {
 
 // Main - Demography main
 func Main() {
+	ComputeYearMean()
+	ComputeMeanValues()
+	fmt.Println("MeanValues = ", meanValues)
 	displayResults()
 }
