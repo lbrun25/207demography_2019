@@ -1,8 +1,13 @@
 package demography
 
 import (
-	"fmt"
 	"math"
+)
+
+const (
+	targetYear = 2050
+	fit1 = 0
+	fit2 = 1
 )
 
 // MeanYear - mean of years
@@ -12,10 +17,10 @@ var MeanYear float64
 var MeanValues float64
 
 type fitValues struct {
-	alpha float64
-	beta float64
-	rmsd float64
-	pred float64
+	a float64
+	b float64
+	rootMeanSquareDeviation float64
+	population float64
 }
 
 // Fits - struct which holds values for both fit
@@ -37,41 +42,54 @@ func ComputeYearMean() {
 	MeanYear = sum /  float64(len(Years))
 }
 
-// ComputeFit1 - get fit1
-func ComputeFit1() {
-	dividend := 0.0
-	divisor := 0.0
-	y := 0.0
-	idx := 0
+func getA(fit int) float64 {
+	numerator := 0.0
+	denominator := 0.0
 
 	for _, population := range Populations {
-		dividend += (float64(population.value) - MeanValues) * (float64(population.year) - MeanYear)
-		divisor += math.Pow(float64(population.year) - MeanYear, 2)
-	}
-	beta := dividend / divisor
-	alpha := MeanValues - beta * MeanYear
-
-	dividend = 0
-	for _, year := range Years {
-		for _, demography := range Demographies {
-			y += float64(demography.values[idx])
+		switch fit {
+		case fit1:
+			numerator += (float64(population.value) - MeanValues) * (float64(population.year) - MeanYear)
+			denominator += math.Pow(float64(population.year) - MeanYear, 2)
+		case fit2:
+			numerator += (float64(population.year) - MeanYear) * (float64(population.value) - MeanValues)
+			denominator += math.Pow(float64(population.value) - MeanValues, 2)
 		}
-		dividend += math.Pow((beta * float64(year) + alpha) - y, 2)
-		y = 0
-		idx++
 	}
-	rsmd := math.Sqrt(dividend / float64(len(Years)))
-	pred := beta * 2050 + alpha
+	return numerator / denominator
+}
+
+func getRootMeanStandardDeviation(fit int, a float64, b float64) float64 {
+	numerator := 0.0
+	y := 0.0
+
+	for i, year := range Years {
+		for _, demography := range Demographies {
+			y += float64(demography.values[i])
+		}
+		switch fit {
+		case fit1:
+			numerator += math.Pow((a * float64(year) + b) - y, 2)
+		case fit2:
+			numerator += math.Pow(((float64(year) - b) / a) - y, 2)
+		}
+		y = 0
+	}
+	return math.Sqrt(numerator / float64(len(Years)))
+}
+
+// ComputeFit1 - get fit1
+func ComputeFit1() {
+	a := getA(fit1)
+	b := MeanValues - a * MeanYear
+	population := a * targetYear + b
+
 	Fit = Fits{one: fitValues{
-		alpha: alpha,
-		beta:  beta,
-		rmsd:  rsmd,
-		pred:  pred,
+		a: a,
+		b: b,
+		rootMeanSquareDeviation: getRootMeanStandardDeviation(fit1, a, b),
+		population: population,
 	}}
-	fmt.Printf("alpha = %f\n", Fit.one.alpha)
-	fmt.Printf("beta = %f\n", Fit.one.beta)
-	fmt.Printf("rmsd = %f\n", Fit.one.rmsd)
-	fmt.Printf("pred = %f\n", Fit.one.pred)
 }
 
 // ComputePopulations - fill Populations's slice
