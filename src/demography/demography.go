@@ -5,9 +5,6 @@ import (
 	"strings"
 )
 
-const (
-)
-
 // Years = slice of year
 var Years []int
 
@@ -19,6 +16,15 @@ type Demography struct {
 	countryName string
 	countryCode string
 	values []int
+}
+
+// Populations - slice of population by year
+var Populations []Population
+
+// Population - struct which holds population's infos
+type Population struct {
+	year int
+	value int
 }
 
 func getCountryNames() []string {
@@ -49,6 +55,7 @@ func displayResults() {
 func Main() {
 	ComputeYearMean()
 	ComputeMeanValues()
-	fmt.Println("MeanValues = ", meanValues)
+	ComputePopulations()
+	ComputeFit1()
 	displayResults()
 }
