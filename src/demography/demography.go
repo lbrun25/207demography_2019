@@ -48,12 +48,12 @@ func displayResults() {
 	fmt.Println("Country:", strings.Join(getCountryNames(), ", "))
 
 	fmt.Println("Fit1")
-	fmt.Printf("\tY= %.2f X - %.2f\n", Fit.one.a, Fit.one.b)
+	fmt.Printf("\tY = %.2f X - %.2f\n", Fit.one.a, Fit.one.b)
 	fmt.Printf("\tRoot-mean-square deviation: %.2f\n", Fit.one.rootMeanSquareDeviation)
 	fmt.Printf("\tPopulation in 2050: %.2f\n", Fit.one.population)
 
 	fmt.Println("Fit2")
-	fmt.Printf("\tY= %.2f Y + %.2f\n", Fit.two.a, Fit.two.b)
+	fmt.Printf("\tX = %.2f Y + %.2f\n", Fit.two.a, Fit.two.b)
 	fmt.Printf("\tRoot-mean-square deviation: %.2f\n", Fit.two.rootMeanSquareDeviation)
 	fmt.Printf("\tPopulation in 2050: %.2f\n", Fit.two.population)
 
