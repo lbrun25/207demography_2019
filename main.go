@@ -24,5 +24,4 @@ func main() {
         os.Exit(84)
     }
     demography.Main()
-    os.Exit(0)
 }

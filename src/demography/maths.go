@@ -16,21 +16,13 @@ var MeanYear float64
 // MeanYear - mean of values
 var MeanValues float64
 
-type fitValues struct {
+// FitValues - struct which holds values for the fit
+type FitValues struct {
 	a float64
 	b float64
 	rootMeanSquareDeviation float64
 	population float64
 }
-
-// Fits - struct which holds values for both fit
-type Fits struct {
-	one fitValues
-	two fitValues
-}
-
-// Fit - Fit's holder
-var Fit Fits
 
 // ComputeYearMean - get mean date (year)
 func ComputeYearMean() {
@@ -78,18 +70,40 @@ func getRootMeanStandardDeviation(fit int, a float64, b float64) float64 {
 	return math.Sqrt(numerator / float64(len(Years)))
 }
 
+func getBMultiplier(b float64) float64 {
+	multiplier := 1.0
+
+	if b < 0 {
+		multiplier = -1
+	}
+	return multiplier
+}
+
 // ComputeFit1 - get fit1
-func ComputeFit1() {
+func ComputeFit1() FitValues {
 	a := getA(fit1)
 	b := MeanValues - a * MeanYear
 	population := a * targetYear + b
 
-	Fit = Fits{one: fitValues{
-		a: a,
-		b: b,
-		rootMeanSquareDeviation: getRootMeanStandardDeviation(fit1, a, b),
-		population: population,
-	}}
+	return FitValues{
+		a:                       a / math.Pow(10, 6),
+		b:                       (b * getBMultiplier(b)) / math.Pow(10, 6),
+		rootMeanSquareDeviation: getRootMeanStandardDeviation(fit1, a, b) / math.Pow(10, 6),
+		population:              population / math.Pow(10, 6),
+	}
+}
+
+func ComputeFit2() FitValues {
+	a := getA(fit2)
+	b := MeanYear - a * MeanValues
+	population := (targetYear - b) / a
+
+	return FitValues{
+		a:                       a * math.Pow(10, 6),
+		b:                       b * getBMultiplier(b),
+		rootMeanSquareDeviation: getRootMeanStandardDeviation(fit2, a, b) / math.Pow(10, 6),
+		population:              population / math.Pow(10, 6),
+	}
 }
 
 // ComputePopulations - fill Populations's slice
@@ -117,26 +131,9 @@ func ComputeMeanValues() {
 	MeanValues = sum / float64(len(Years))
 }
 
-// GetCoefficients - Get linear coefficients
-func GetCoefficients() float64 {
-	res := 0.0
-	return res
-}
-
-// GetRootMeanSquareDeviation - Get root-mean-square deviation
-func GetRootMeanSquareDeviation() float64 {
-	res := 0.0
-	return res
-}
-
-// GetPopulationPrediction - Get population prediction in 2050
-func GetPopulationPrediction() float64 {
-	res := 0.0
-	return res
-}
-
 // GetCorrelation - Get correlation coefficient between X and Y
 func GetCorrelation() float64 {
- res := 0.0
- return res
+	res := (Fit.one.rootMeanSquareDeviation * math.Pow(10, 6)) /
+		(Fit.two.rootMeanSquareDeviation * math.Pow(10, 6))
+	return res
 }

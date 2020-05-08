@@ -27,6 +27,15 @@ type Population struct {
 	value int
 }
 
+// Fits - struct which holds values for both fit
+type Fits struct {
+	one FitValues
+	two FitValues
+}
+
+// Fit - Fit's holder
+var Fit Fits
+
 func getCountryNames() []string {
 	var countryNames []string
 	for _, demography := range Demographies {
@@ -39,16 +48,16 @@ func displayResults() {
 	fmt.Println("Country:", strings.Join(getCountryNames(), ", "))
 
 	fmt.Println("Fit1")
-	fmt.Printf("\tY= %.2f X - %.2f\n", 0.0, 0.0)
-	fmt.Printf("\tRoot-mean-square deviation: %.2f\n", 0.0)
-	fmt.Printf("\tPopulation in 2050: %.2f\n", 0.0)
+	fmt.Printf("\tY= %.2f X - %.2f\n", Fit.one.a, Fit.one.b)
+	fmt.Printf("\tRoot-mean-square deviation: %.2f\n", Fit.one.rootMeanSquareDeviation)
+	fmt.Printf("\tPopulation in 2050: %.2f\n", Fit.one.population)
 
 	fmt.Println("Fit2")
-	fmt.Printf("\tY= %.2f Y + %.2f\n", 0.0, 0.0)
-	fmt.Printf("\tRoot-mean-square deviation: %.2f\n", 0.0)
-	fmt.Printf("\tPopulation in 2050: %.2f\n", 0.0)
+	fmt.Printf("\tY= %.2f Y + %.2f\n", Fit.two.a, Fit.two.b)
+	fmt.Printf("\tRoot-mean-square deviation: %.2f\n", Fit.two.rootMeanSquareDeviation)
+	fmt.Printf("\tPopulation in 2050: %.2f\n", Fit.two.population)
 
-	fmt.Println("Correlation", 0.0)
+	fmt.Printf("Correlation: %.4f\n", GetCorrelation())
 }
 
 // Main - Demography main
@@ -56,6 +65,9 @@ func Main() {
 	ComputeYearMean()
 	ComputeMeanValues()
 	ComputePopulations()
-	ComputeFit1()
+	Fit = Fits{
+		one: ComputeFit1(),
+		two: ComputeFit2(),
+	}
 	displayResults()
 }
